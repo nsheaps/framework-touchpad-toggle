@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+#
+# framework-touchpad-toggle — enable/disable the internal touchpad on a
+# Framework laptop running Ubuntu/Debian + GNOME (X11 or Wayland).
+#
+# This is the runtime entrypoint. The Homebrew formula links this file
+# into the PATH; configuration lives in a stable, version-independent
+# config file (see CONFIG_FILE below). Most logic is sourced from lib/.
+#
+# Exit codes:
+#   0  success
+#   1  generic / unsupported configuration at runtime
+#   2  usage error
+#   3  config missing or invalid
+#
+set -euo pipefail
+
+# --- locate libdir ----------------------------------------------------------
+# When installed via Homebrew, helpers live next to this script under
+# ../lib/framework-touchpad-toggle. When run from a source checkout they
+# live in ../lib. Resolve both.
+_self="$(readlink -f "${BASH_SOURCE[0]}")"
+_root="$(cd "$(dirname "$_self")/.." && pwd)"
+if [ -d "$_root/lib/framework-touchpad-toggle" ]; then
+  FTT_LIBDIR="$_root/lib/framework-touchpad-toggle"
+elif [ -d "$_root/lib" ]; then
+  FTT_LIBDIR="$_root/lib"
+else
+  echo "framework-touchpad-toggle: cannot locate lib directory" >&2
+  exit 1
+fi
+export FTT_LIBDIR
+
+# shellcheck source=../lib/common.sh
+. "$FTT_LIBDIR/common.sh"
+# shellcheck source=../lib/config.sh
+. "$FTT_LIBDIR/config.sh"
+# shellcheck source=../lib/devices.sh
+. "$FTT_LIBDIR/devices.sh"
+# shellcheck source=../lib/session.sh
+. "$FTT_LIBDIR/session.sh"
+# shellcheck source=../lib/notify.sh
+. "$FTT_LIBDIR/notify.sh"
+# shellcheck source=../lib/configure.sh
+. "$FTT_LIBDIR/configure.sh"
+
+VERSION="0.1.0"
+
+usage() {
+  cat <<'EOF'
+Usage: framework-touchpad-toggle <command> [options]
+
+Commands:
+  toggle              Toggle the configured touchpad on/off (default)
+  enable              Enable the configured touchpad
+  disable             Disable the configured touchpad
+  status              Print current touchpad state and exit
+  startup             Run the login-time check (re-enable / persistent warning)
+  configure           (Re)run interactive configuration
+  list-devices        List all touchpad and mouse devices with stable IDs
+  install-shortcut    Register the keyboard shortcut + startup entry
+  uninstall-shortcut  Remove the keyboard shortcut + startup entry
+  config-path         Print the path to the config file
+  help                Show this help
+
+Options (override config; usable for unattended runs):
+  --preserve          Non-interactive; never prompt, adopt existing config
+  --force             Non-interactive; overwrite without warning
+  --non-interactive   Alias for --preserve
+  --quiet             Suppress non-error output
+  --version           Print version and exit
+
+Environment overrides:
+  FTT_CONFIG_FILE     Path to config file (default: see config-path)
+  FTT_SESSION         Force session type: x11 | wayland
+EOF
+}
+
+main() {
+  local cmd="toggle"
+  if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+    cmd="$1"
+    shift
+  fi
+
+  # global flags
+  FTT_PRESERVE=false
+  FTT_FORCE=false
+  FTT_QUIET=false
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --preserve | --non-interactive) FTT_PRESERVE=true ;;
+      --force) FTT_FORCE=true ;;
+      --quiet) FTT_QUIET=true ;;
+      --version)
+        echo "framework-touchpad-toggle $VERSION"
+        exit 0
+        ;;
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      *)
+        ftt::err "unknown option: $1"
+        usage >&2
+        exit 2
+        ;;
+    esac
+    shift
+  done
+  export FTT_PRESERVE FTT_FORCE FTT_QUIET
+
+  case "$cmd" in
+    toggle) ftt::action_toggle ;;
+    enable) ftt::action_set enable ;;
+    disable) ftt::action_set disable ;;
+    status) ftt::action_status ;;
+    startup) ftt::action_startup ;;
+    configure) ftt::configure_interactive ;;
+    list-devices) ftt::devices_print_all ;;
+    install-shortcut) ftt::shortcut_install ;;
+    uninstall-shortcut) ftt::shortcut_uninstall ;;
+    config-path) ftt::config_file ;;
+    help | -h | --help) usage ;;
+    *)
+      ftt::err "unknown command: $cmd"
+      usage >&2
+      exit 2
+      ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# action: toggle / enable / disable
+# -----------------------------------------------------------------------------
+ftt::action_toggle() {
+  ftt::config_require
+  local cur
+  cur="$(ftt::touchpad_state)"
+  if [ "$cur" = "enabled" ]; then
+    ftt::action_set disable
+  else
+    ftt::action_set enable
+  fi
+}
+
+# ftt::action_set <enable|disable>
+ftt::action_set() {
+  local want="$1"
+  ftt::config_require
+
+  ftt::touchpad_set "$want"
+  ftt::config_record_seen_devices "$want"
+
+  if [ "$want" = "disable" ]; then
+    if ftt::has_other_pointer; then
+      ftt::notify "$want" "Touchpad disabled."
+    else
+      ftt::notify_warn \
+        "Touchpad disabled — no other mouse detected. Pointer input is OFF until you re-enable it."
+    fi
+  else
+    ftt::notify "$want" "Touchpad enabled."
+  fi
+}
+
+ftt::action_status() {
+  ftt::config_require
+  printf '%s\n' "$(ftt::touchpad_state)"
+}
+
+# -----------------------------------------------------------------------------
+# action: startup — run at login
+# -----------------------------------------------------------------------------
+ftt::action_startup() {
+  ftt::config_require
+  local state
+  state="$(ftt::touchpad_state)"
+  ftt::config_record_seen_devices "startup"
+
+  if [ "$state" = "disabled" ] && ! ftt::has_other_pointer; then
+    if [ "$(ftt::config_get startup_reenable_when_no_mouse false)" = "true" ]; then
+      ftt::touchpad_set enable
+      ftt::notify enable "Touchpad re-enabled at login (no other mouse found)."
+    else
+      ftt::notify_warn \
+        "Touchpad is disabled and no other mouse is connected. Re-enable it to use the pointer."
+    fi
+  fi
+}
+
+main "$@"

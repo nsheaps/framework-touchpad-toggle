@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Framework Touchpad Toggle
+GenericName=Touchpad Toggle
+Comment=Enable or disable the Framework laptop internal touchpad
+Exec=framework-touchpad-toggle toggle
+Icon=input-touchpad
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=touchpad;trackpad;framework;
+NoDisplay=false

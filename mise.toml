@@ -1,0 +1,41 @@
+# mise — toolchain + task runner. `mise run check` is the single CI gate.
+# Mirrors the nsheaps/op-exec convention.
+
+[tools]
+node = "lts"
+yarn = "4"
+shellcheck = "0.10"
+shfmt = "latest"
+
+[settings]
+# keep task output readable in CI
+task_output = "prefix"
+
+[tasks.lint]
+description = "Run ShellCheck on all shell sources"
+run = "shellcheck bin/framework-touchpad-toggle lib/*.sh"
+
+[tasks.fmt]
+description = "Format all shell sources with shfmt"
+run = "shfmt -w -i 2 -ci bin/framework-touchpad-toggle lib/*.sh"
+
+[tasks.fmt-check]
+description = "Check shell formatting with shfmt"
+run = "shfmt -d -i 2 -ci bin/framework-touchpad-toggle lib/*.sh"
+
+[tasks.test]
+description = "Run CLI smoke tests"
+run = "bash test/smoke.sh"
+
+[tasks.audit]
+description = "Run brew audit on the formula (requires Homebrew)"
+run = "brew audit --strict --formula ./Formula/framework-touchpad-toggle.rb || echo 'brew not available; skipping'"
+
+[tasks.check]
+description = "Run all checks (lint + fmt-check + test)"
+depends = ["lint", "fmt-check", "test"]
+run = "echo 'All checks passed'"
+
+[tasks.release]
+description = "Cut a release with release-it (conventional commits)"
+run = "yarn dlx release-it"

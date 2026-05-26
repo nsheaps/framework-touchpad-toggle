@@ -1,0 +1,5 @@
+# ShellCheck configuration
+# SC1090/SC1091: dynamic `source` paths are resolved at runtime by design.
+disable=SC1090,SC1091
+external-sources=true
+shell=bash

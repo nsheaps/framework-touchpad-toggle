@@ -1,0 +1,16 @@
+[Unit]
+# Optional alternative to the freedesktop autostart entry. Runs the
+# login-time startup check (re-enable / warn about a disabled touchpad
+# with no other mouse). Enable with:
+#   systemctl --user enable --now framework-touchpad-toggle.service
+Description=Framework Touchpad Toggle — login-time startup check
+Documentation=https://github.com/nsheaps/framework-touchpad-toggle
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=framework-touchpad-toggle startup
+
+[Install]
+WantedBy=graphical-session.target
