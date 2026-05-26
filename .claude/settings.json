@@ -1,34 +1,61 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "env": {
+    "TASK_UTILS_TASK_DIR": "/home/user/framework-touchpad-toggle/.claude/tasks",
+    "CLAUDE_CODE_ENABLE_TASKS": "1",
+    "CLAUDE_CODE_ENABLE_BACKGROUND_PLUGIN_REFRESH": "1",
+    "CLAUDE_AUTO_BACKGROUND_TASKS": "1",
+    "CLAUDE_CODE_DISABLE_CRON": "0",
+    "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "0",
+    "CLAUDE_CODE_EXIT_AFTER_STOP_DELAY": "60000",
+    "FORCE_AUTOUPDATE_PLUGINS": "1"
+  },
+  "extraKnownMarketplaces": {
+    "agents": {
+      "source": {
+        "source": "github",
+        "repo": "nsheaps/agents"
+      }
+    },
+    "ai-mktpl": {
+      "source": {
+        "source": "github",
+        "repo": "nsheaps/ai-mktpl"
+      }
+    }
+  },
   "enabledPlugins": {
-    "github-app@ai-mktpl": true,
+    "cron-utils@agents": true,
+    "task-utils@agents": true,
+    "shared-lib@ai-mktpl": true,
+    "dangerous-bypass@ai-mktpl": true,
+    "agentic-behavior@ai-mktpl": true,
+    "common-sense@ai-mktpl": true,
+    "deep-research@ai-mktpl": true,
+    "edit-utils@ai-mktpl": true,
     "github@ai-mktpl": true,
+    "github-app@ai-mktpl": true,
     "1pass@ai-mktpl": true,
     "mise@ai-mktpl": true,
-    "edit-utils@ai-mktpl": true,
-    "agentic-behavior@ai-mktpl": true,
-    "plugin-management@ai-mktpl": true
-  },
-  "permissions": {
-    "allow": [
-      "Bash(mise run:*)",
-      "Bash(shellcheck:*)",
-      "Bash(shfmt:*)",
-      "Bash(bash test/smoke.sh)",
-      "Bash(brew audit:*)",
-      "Bash(brew style:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Read(./**)",
-      "Edit(./**)"
-    ],
-    "deny": [
-      "Read(./**/*.local.*)",
-      "Bash(git push:*)"
-    ]
+    "scm-utils@ai-mktpl": true,
+    "sequential-thinking@ai-mktpl": true,
+    "hookify@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
