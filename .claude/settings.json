@@ -1,5 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "enabledPlugins": {
+    "github-app@ai-mktpl": true,
+    "github@ai-mktpl": true,
+    "1pass@ai-mktpl": true,
+    "mise@ai-mktpl": true,
+    "edit-utils@ai-mktpl": true,
+    "agentic-behavior@ai-mktpl": true,
+    "plugin-management@ai-mktpl": true
+  },
   "permissions": {
     "allow": [
       "Bash(mise run:*)",
