@@ -1,0 +1,30 @@
+repository:
+  name: framework-touchpad-toggle
+  description: "Toggle the Framework laptop internal touchpad on Linux (GNOME X11/Wayland)"
+  homepage: https://github.com/nsheaps/framework-touchpad-toggle
+  topics: framework-laptop,homebrew,linux,touchpad,gnome
+  private: false
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: false
+  delete_branch_on_merge: true
+  default_branch: main
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      required_status_checks:
+        strict: true
+        contexts:
+          - check
+      enforce_admins: false
+      required_linear_history: true
+      required_conversation_resolution: true
+      restrictions: null

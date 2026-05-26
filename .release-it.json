@@ -11,9 +11,6 @@
     "autoGenerate": true
   },
   "npm": false,
-  "hooks": {
-    "before:init": ["mise run check"]
-  },
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": {
@@ -29,7 +26,9 @@
       },
       "infile": "CHANGELOG.md",
       "header": "# Changelog",
-      "gitRawCommitsOpts": { "firstParent": false }
+      "gitRawCommitsOpts": {
+        "firstParent": false
+      }
     }
   }
 }
