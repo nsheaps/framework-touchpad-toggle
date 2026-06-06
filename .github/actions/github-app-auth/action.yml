@@ -36,6 +36,10 @@ outputs:
     description: "GitHub App bot user name (app slug with [bot] suffix)"
     value: ${{ steps.get-user-id.outputs.user-name }}
 
+  user-email:
+    description: "GitHub App bot no-reply email (for commit attribution)"
+    value: ${{ steps.get-user-id.outputs.user-email }}
+
 runs:
   using: "composite"
   steps:
@@ -51,8 +55,13 @@ runs:
       id: get-user-id
       shell: bash
       run: |
-        echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        echo "user-name=${{ steps.app-token.outputs.app-slug }}[bot]" >> "$GITHUB_OUTPUT"
+        user_id="$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)"
+        user_name="${{ steps.app-token.outputs.app-slug }}[bot]"
+        {
+          echo "user-id=${user_id}"
+          echo "user-name=${user_name}"
+          echo "user-email=${user_id}+${user_name}@users.noreply.github.com"
+        } >> "$GITHUB_OUTPUT"
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
@@ -66,8 +75,8 @@ runs:
         echo "GITHUB_TOKEN=${GH_TOKEN}" >> $GITHUB_ENV
         git config --global user.name '${{ steps.get-user-id.outputs.user-name }}'
         git config user.name '${{ steps.get-user-id.outputs.user-name }}'
-        git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.get-user-id.outputs.user-name }}@users.noreply.github.com'
-        git config user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.get-user-id.outputs.user-name }}@users.noreply.github.com'
+        git config --global user.email '${{ steps.get-user-id.outputs.user-email }}'
+        git config user.email '${{ steps.get-user-id.outputs.user-email }}'
 
     - name: Configure repo checkout token
       uses: actions/checkout@v6
