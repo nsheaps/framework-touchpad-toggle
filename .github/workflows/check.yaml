@@ -1,59 +1,78 @@
+---
 name: check
 
 on:
+  workflow_dispatch:
   push:
+    branches: [main]
+  pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  # On push (to main): unique group per SHA so every push builds.
+  # On PR: group by ref so a new push cancels the in-flight run.
+  group: ${{ github.event_name == 'push' && github.sha || format('{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Single CI gate (`check` — referenced by branch protection in
+  # .github/settings.yml). Auto-fixes what it can (shfmt) before running the
+  # read-only gate `mise run check` (lint + fmt-check + test). If anything was
+  # rewritten or a non-fixable check failed, the writes are committed back to
+  # the PR branch and the job exits 1 so CI re-runs against the final state.
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Checkout and authenticate as GitHub App
+        id: auth
+        uses: nsheaps/github-actions/.github/actions/checkout-as-app@603052841cd49b9fdc99bc32979ff9c45c9b669e # checkout-as-app@main
+        with:
+          app-id: ${{ secrets.AUTOMATION_GITHUB_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_GITHUB_APP_PRIVATE_KEY }}
+          ref: ${{ github.head_ref || github.ref }}
 
       - name: Setup mise
         uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: ${{ github.event_name == 'pull_request' }}
 
-      - name: Find bash scripts
-        id: find-bash
+      - name: Auto-fix formatting and run checks
+        id: check
+        continue-on-error: true
         run: |
-          bash_files=""
-          # bin/ scripts without .sh extension
-          for f in $(find ./bin -maxdepth 1 -type f -not -name '*.sh' -not -path './.git/*'); do
-            shebang=$(head -1 "$f")
-            if echo "$shebang" | grep -qE '(bash|^#!/bin/sh)'; then
-              bash_files="$bash_files $f"
-            fi
-          done
-          # lib/ and test/ .sh files
-          for f in $(find ./lib ./test -type f -name '*.sh' 2>/dev/null); do
-            bash_files="$bash_files $f"
-          done
-          echo "files=$bash_files" >> "$GITHUB_OUTPUT"
-          echo "Found bash files:$bash_files"
+          set +e
+          had_failure=false
 
-      - name: ShellCheck
-        if: steps.find-bash.outputs.files != ''
+          # Auto-fix what we can (shfmt) before the read-only gate sees the tree.
+          mise run fmt || had_failure=true
+          # The single CI gate: lint + fmt-check + test.
+          mise run check || had_failure=true
+
+          changed=false
+          if [ -n "$(git status --porcelain)" ]; then
+            changed=true
+          fi
+
+          if [ "$had_failure" = "true" ] || [ "$changed" = "true" ]; then
+            echo "changed-or-failed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed-or-failed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit auto-fixes
+        if: steps.check.outputs.changed-or-failed == 'true' && ! cancelled()
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'chore: `mise run fmt`'
+          commit_user_name: ${{ steps.auth.outputs.user-name }}
+          commit_user_email: ${{ steps.auth.outputs.user-email }}
+
+      - name: Fail if changes were made or checks failed
+        if: steps.check.outputs.changed-or-failed == 'true' && ! cancelled()
         run: |
-          bash_files="${{ steps.find-bash.outputs.files }}"
-          echo "Running ShellCheck on:$bash_files"
-          shellcheck $bash_files
-
-      - name: shfmt check
-        if: steps.find-bash.outputs.files != ''
-        run: |
-          bash_files="${{ steps.find-bash.outputs.files }}"
-          echo "Running shfmt on:$bash_files"
-          shfmt -d -i 2 -ci $bash_files
-
-      - name: Smoke tests
-        run: bash test/smoke.sh
-
-      - name: EditorConfig check
-        uses: editorconfig-checker/action-editorconfig-checker@main
-
-      - name: Run editorconfig-checker
-        run: editorconfig-checker
+          echo "Auto-committed formatting fixes and/or a non-fixable check failed."
+          echo "A re-run on the new commit will pass once remaining issues are resolved."
+          exit 1

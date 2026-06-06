@@ -3,25 +3,30 @@ node = "lts"
 yarn = "4"
 shellcheck = "latest"
 shfmt = "latest"
+editorconfig-checker = "latest"
 
 [tasks.lint]
-description = "Run ShellCheck on all shell sources"
-run = "shellcheck bin/framework-touchpad-toggle lib/*.sh test/*.sh"
+description = "Lint shell sources (ShellCheck) and check editorconfig compliance"
+run = [
+  "shellcheck bin/framework-touchpad-toggle lib/*.sh test/*.sh",
+  # editorconfig-checker's CLI binary is `ec` (aqua:editorconfig-checker/editorconfig-checker).
+  "ec",
+]
 
 [tasks.test]
 description = "Run CLI smoke tests"
 run = "bash test/smoke.sh"
 
 [tasks.fmt]
-description = "Format all shell sources with shfmt"
+description = "Auto-format all shell sources with shfmt"
 run = "shfmt -w -i 2 -ci bin/framework-touchpad-toggle lib/*.sh test/*.sh"
 
 [tasks.fmt-check]
-description = "Check shell formatting with shfmt"
+description = "Check shell formatting with shfmt (no writes)"
 run = "shfmt -d -i 2 -ci bin/framework-touchpad-toggle lib/*.sh test/*.sh"
 
 [tasks.check]
-description = "Run all checks (lint + fmt-check + test)"
+description = "Run all checks (lint + fmt-check + test) — the single CI gate"
 depends = ["lint", "fmt-check", "test"]
 run = "echo 'All checks passed'"
 
