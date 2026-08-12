@@ -60,8 +60,8 @@ class FrameworkTouchpadToggle < Formula
     # Decide interactivity. Unattended when: --with-unattended, Homebrew's
     # own NONINTERACTIVE mode, or no controlling TTY.
     unattended = build.with?("unattended") ||
-                 ENV["NONINTERACTIVE"].present? ||
-                 !$stdin.tty?
+      ENV["NONINTERACTIVE"].present? ||
+      !$stdin.tty?
 
     args = ["configure"]
     args << "--preserve" if unattended
