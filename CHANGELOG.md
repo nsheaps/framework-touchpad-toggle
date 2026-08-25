@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.2](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.1...v0.0.2) (2026-08-25)
+
+### Maintenance
+
+* **deps:** update dependency release-it to v21 ([#18](https://github.com/nsheaps/framework-touchpad-toggle/issues/18)) ([b9713d0](https://github.com/nsheaps/framework-touchpad-toggle/commit/b9713d06f61ab15d507f1ff26cab8ad64e488971))
+
 ## 0.0.1 (2026-08-25)
 
 ### Maintenance
