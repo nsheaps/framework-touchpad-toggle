@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.3](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.2...v0.0.3) (2026-08-26)
+
+### Maintenance
+
+* **deps:** update dependency conventional-commits-parser to ^7.1.1 ([#19](https://github.com/nsheaps/framework-touchpad-toggle/issues/19)) ([3e6c266](https://github.com/nsheaps/framework-touchpad-toggle/commit/3e6c266cdde9b9f26b3fbde807e64fe99e6a476f))
+
 ## [0.0.2](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.1...v0.0.2) (2026-08-25)
 
 ### Maintenance
