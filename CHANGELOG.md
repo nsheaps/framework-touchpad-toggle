@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.6](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.5...v0.0.6) (2026-08-30)
+
+### Maintenance
+
+* **deps:** update all patch updates ([#21](https://github.com/nsheaps/framework-touchpad-toggle/issues/21)) ([6b61263](https://github.com/nsheaps/framework-touchpad-toggle/commit/6b61263f60548cbb8510459f035a821b19c4011e))
+
 ## [0.0.5](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.4...v0.0.5) (2026-08-28)
 
 ### Maintenance
