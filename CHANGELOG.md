@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.15](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.14...v0.0.15) (2026-09-18)
+
+### Maintenance
+
+* **deps:** update dependency conventional-changelog-conventionalcommits to ^10.4.0 ([#25](https://github.com/nsheaps/framework-touchpad-toggle/issues/25)) ([41891b9](https://github.com/nsheaps/framework-touchpad-toggle/commit/41891b94749df01e8d0d4630e30a5781115cf1b4))
+
 ## [0.0.14](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.13...v0.0.14) (2026-09-16)
 
 ### Maintenance
