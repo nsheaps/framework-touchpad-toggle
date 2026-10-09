@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.19](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.18...v0.0.19) (2026-10-09)
+
+### Maintenance
+
+* **deps:** update nsheaps/agents digest to 49e4ab5 ([7532ad2](https://github.com/nsheaps/framework-touchpad-toggle/commit/7532ad2b3e28a01fde654269f885f343dca89638))
+
 ## [0.0.18](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.17...v0.0.18) (2026-09-29)
 
 ### Maintenance
