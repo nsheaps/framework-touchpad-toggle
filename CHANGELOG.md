@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.25](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.24...v0.0.25) (2026-10-25)
+
+### Maintenance
+
+* **deps:** update yarn to v4.18.1 ([#28](https://github.com/nsheaps/framework-touchpad-toggle/issues/28)) ([23cae7c](https://github.com/nsheaps/framework-touchpad-toggle/commit/23cae7c79dac696c496189b53b5fb97058841695))
+
 ## [0.0.24](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.23...v0.0.24) (2026-10-23)
 
 ### Maintenance
