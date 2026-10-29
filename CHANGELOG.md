@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.27](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.26...v0.0.27) (2026-10-29)
+
+### Maintenance
+
+* **deps:** update jdx/mise-action action to v5 ([#29](https://github.com/nsheaps/framework-touchpad-toggle/issues/29)) ([f7c80bf](https://github.com/nsheaps/framework-touchpad-toggle/commit/f7c80bfebfec0e67459244f88c2fb57c09848865))
+
 ## [0.0.26](https://github.com/nsheaps/framework-touchpad-toggle/compare/v0.0.25...v0.0.26) (2026-10-26)
 
 ### Maintenance
